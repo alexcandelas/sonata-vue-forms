@@ -1,0 +1,31 @@
+{
+  "name": "sonata-vue-forms",
+  "version": "0.1.0",
+  "description": "Base form components for Vue.js and Sonata CSS.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexcandelas/sonata-vue-forms.git"
+  },
+  "keywords": [
+    "sonata",
+    "sonatacss",
+    "vue",
+    "forms",
+    "component"
+  ],
+  "author": "Alex Candelas <axcandelas@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alexcandelas/sonata-vue-forms/issues"
+  },
+  "homepage": "https://github.com/alexcandelas/sonata-vue-forms",
+  "dependencies": {
+    "axios": "^0.21.4",
+    "lodash": "^4.17.21",
+    "scroll-into-view": "^1.16.0"
+  },
+  "peerDependencies": {
+    "vue": "^2.6.0"
+  }
+}
