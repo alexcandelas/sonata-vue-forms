@@ -20,9 +20,12 @@
             class="form-switch__toggle"
             :class="{'form-switch__toggle--checked': isChecked}"
         >
-            <span class="form-switch__text form-switch__text--on">
-                <slot name="on">
-                    <template v-if="showText">{{ translate('on') }}</template>
+            <span class="form-switch__label form-switch__label--on">
+                <slot
+                    v-if="showLabels"
+                    name="on-label"
+                >
+                    <svg slot="on-label" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12.5L10 17 20 7"/></svg>
                 </slot>
             </span>
 
@@ -31,10 +34,11 @@
                 :class="animation"
             ></span>
 
-            <span class="form-switch__text form-switch__text--off">
-                <slot name="off">
-                    <template v-if="showText">{{ translate('off') }}</template>
-                </slot>
+            <span class="form-switch__label form-switch__label--off">
+                <slot
+                    v-if="showLabels"
+                    name="off-label"
+                ></slot>
             </span>
         </span>
     </span>
@@ -42,10 +46,9 @@
 
 <script>
     import FormField from '../mixins/FormFieldMixin.js';
-    import Localization from '../mixins/LocalizationMixin.js';
 
     export default {
-        mixins: [FormField, Localization],
+        mixins: [FormField],
 
         inheritsAttrs: false,
 
@@ -65,38 +68,24 @@
                 required: false
             },
 
+            showLabels: {
+                type: Boolean,
+                required: false,
+                default: true
+            },
+
             /**
              * CSS class for input element.
              */
             inputClass: {
                 type: String,
                 required: false
-            },
-
-            /**
-             * If component should diplay the default text for the `on`
-             * and `off` statuses.
-             */
-            showText: {
-                type: Boolean,
-                required: false,
-                default: true
             }
         },
 
         data() {
             return {
-                animation: '',
-                localization: {
-                    en: {
-                        off: 'Off',
-                        on: 'On'
-                    },
-                    es: {
-                        off: 'No',
-                        on: 'Sí'
-                    }
-                }
+                animation: ''
             };
         },
 
