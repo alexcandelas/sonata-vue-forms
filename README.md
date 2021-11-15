@@ -20,7 +20,7 @@ The BaseForm component uses Axios to submit the data. You can provide [Axios con
 import BaseForm from 'sonata-vue-forms';
 
 Vue.use(BaseForm, {
-    headers: {'X-CSRF-TOKEN': yourToken},
+    headers: {'X-CSRF-TOKEN': yourToken},
     withCredentials: true
 });
 ```
