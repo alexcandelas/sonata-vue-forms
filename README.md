@@ -57,7 +57,7 @@ After registering, all components will be available for use:
 
 ## Requirements
 - Vue >= 2.6
-- Sonata CSS
+- Sonata CSS >= 0.3.0
 
 ## Components
 - BaseForm
