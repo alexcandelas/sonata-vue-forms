@@ -72,6 +72,7 @@
                 v-bind="$attrs"
                 :aria-describedby="describedBy || null"
                 v-on="inputListeners"
+                :options="options"
                 @date-support-check="setDateSupport"
             ></component>
         </template>
@@ -125,7 +126,7 @@
             },
 
             /**
-             * A list of options for checkbox and radio components.
+             * A list of options for select, checkbox and radio components.
              */
             options: {
                 type: Array,
