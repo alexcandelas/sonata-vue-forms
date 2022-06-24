@@ -18,7 +18,7 @@
 
         <field-errors
             v-if="displayErrors"
-            :name="name"
+            :name="validationName || name"
             :errors="controlErrors"
         ></field-errors>
 
@@ -72,7 +72,7 @@
 
         <field-errors
             v-if="displayErrors"
-            :name="name"
+            :name="validationName || name"
             :errors="controlErrors"
         ></field-errors>
 
@@ -198,7 +198,7 @@
              * List of validation errors for the field.
              */
             controlErrors: function() {
-                return this.errors || this.$parent.errors[this.name] || [];
+                return this.errors || this.$parent.errors[this.validationName || this.name] || [];
             },
 
             /**
@@ -251,6 +251,7 @@
                     'name': this.name,
                     'model-value': this.modelValue,
                     'aria-describedby': this.describedBy || null,
+                    'validation-name': this.validationName
                 };
             },
 

@@ -139,21 +139,6 @@
                 type: Boolean,
                 required: false,
                 default: true
-            },
-
-            /**
-             * Aliases for invalid fields received during validation.
-             * A field can be internally referenced with a different name
-             * than the one received to diplay its errors. Example:
-             *
-             * :validation-alias: {
-             *     original_field_name: alias
-             * }
-             */
-            validationAlias: {
-                type: Object,
-                required: false,
-                default: () => { return {}; }
             }
         },
 
@@ -352,7 +337,7 @@
                     return;
                 }
 
-                this.errors = this.buildValidationErrors(error.response.data.errors);
+                this.errors = error.response.data.errors;
 
                 // Wait for `aria-invalid` attributes to be updated
                 // before scrolling to the first invalid field
@@ -387,24 +372,6 @@
                 this.emit('success', response);
             },
 
-            /**
-             * Return the validation errors with aliased fields.
-             *
-             * @param  {Object} errors
-             * @return {Object}
-             */
-            buildValidationErrors(errors) {
-                const aliasKeys = Object.keys(this.validationAlias);
-
-                for (let key in errors) {
-                    if (aliasKeys.indexOf(key) !== -1) {
-                        errors[this.validationAlias[key]] = errors[key];
-                        delete errors[key];
-                    }
-                }
-
-                return errors;
-            },
 
             /**
              * Scroll to the first invalid field in form.

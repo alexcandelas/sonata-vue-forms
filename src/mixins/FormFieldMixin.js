@@ -29,7 +29,7 @@ export default {
         },
 
         /**
-         * Optionally define the `name` attribute for the field.
+         * Define the `name` attribute for the field.
          */
         name: {
             type: String,
@@ -41,6 +41,15 @@ export default {
          * for binding data inside custom form components.
          */
         modelValue: {
+            required: false
+        },
+
+        /**
+         * Optionally define a different name to look for
+         * validation errors in the `errors` list.
+         */
+        validationName: {
+            type: String,
             required: false
         }
     },
@@ -78,7 +87,7 @@ export default {
             }
 
             // Remove the "[]" ending from multiplevalue fields, like "images[]".
-            const fieldName = this.name.replace(/\[\]$/, '');
+            const fieldName = this.validationName || this.name.replace(/\[\]$/, '');
 
             return !! (
                 this.$parent.errors[fieldName] &&
