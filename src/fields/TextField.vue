@@ -1,15 +1,14 @@
 <template>
     <input
         :id="computedId"
-        :name="computedName"
+        :name="name"
         class="form-field"
         :class="{'form-field--invalid': hasErrors}"
         type="text"
-        :maxlength="maxlength"
         :inputmode="internalInputMode"
         :aria-invalid="hasErrors ? 'true' : null"
         :aria-describedby="describedBy || null"
-        :value="internalValue"
+        :value="modelValue"
         @input="formatValue"
     >
 </template>
@@ -24,27 +23,12 @@
 
         props: {
             /**
-             * Define the maximum number of characters allowed.
-             */
-            maxlength: {
-                type: String,
-                required: false,
-                default: '255'
-            },
-
-            /**
              * Limit the characters allowed with a regular expression.
              */
             regex: {
                 type: String,
                 required: false,
                 default: ''
-            }
-        },
-
-        data() {
-            return {
-                internalValue: this.value || ''
             }
         },
 
@@ -80,12 +64,6 @@
             }
         },
 
-        watch: {
-            value: function(value) {
-                this.internalValue = value;
-            }
-        },
-
         methods: {
             /**
              * Remove characters if a regular expression is provided,
@@ -95,17 +73,18 @@
              */
             formatValue(e) {
                 if (! this.internalRegex) {
-                    this.internalValue = e.target.value;
-
-                    return this.$emit('input', e.target.value);
+                    return this.$emit('update:modelValue', e.target.value);
                 }
 
                 const regex = new RegExp(this.internalRegex, 'g');
                 const matches = e.target.value.match(regex);
+                const newValue = matches ? matches.join('') : '';
 
-                this.internalValue = matches ? matches.join('') : '';
-                this.$el.value = this.internalValue;
-                this.$emit('input', this.internalValue);
+                this.$emit('update:modelValue', newValue);
+
+                if (newValue === this.modelValue) {
+                    this.$forceUpdate();
+                }
             }
         }
     };

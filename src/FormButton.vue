@@ -35,7 +35,7 @@
                         send: 'Enviar'
                     }
                 }
-            }
+            };
         },
 
         computed: {

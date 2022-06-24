@@ -1,5 +1,5 @@
 <template>
-    <form>
+    <form @submit.prevent="submit">
         <slot
             :data="data"
             :errors="errorsByField"
@@ -167,9 +167,7 @@
                 supportsDates: null,
                 postSizeError: false,
                 prefersReducedMotion: window.matchMedia('(prefers-reduced-motion)').matches,
-                fields: {
-                    _method: this.method
-                }
+                fields: {}
             });
         },
 
@@ -222,13 +220,10 @@
             this.setLanguage();
         },
 
-        /**
-         * Add listener for the submit event.
-         */
         mounted() {
-            this.$el.addEventListener('submit', this.submit);
-
-            this.emit('mounted');
+            if (this.emitEvents) {
+                this.$emit('mounted');
+            }
         },
 
         methods: {
@@ -250,9 +245,7 @@
             /**
              * Submit the form via AJAX.
              */
-            submit(e) {
-                e.preventDefault();
-
+            submit() {
                 const method = this.methodSpoofing ? 'post' : this.method;
 
                 this.isSubmitting = true;
@@ -314,8 +307,11 @@
              */
             mergeInitialData(internalData = {}) {
                 for (let key in this.data) {
-                    if (this[key] || internalData.hasOwnProperty(key)) {
-                        console.warn(`BaseForm: The "${key}" data property provided to BaseForm component is being ignored as it clashes with an existing property or method.`);
+                    if (
+                        this[key] ||
+                        Object.prototype.hasOwnProperty.call(internalData, key)
+                    ) {
+                        console.warn(`BaseForm.vue: The "${key}" data property provided to BaseForm component is being ignored as it clashes with an existing property or method.`);
                         continue;
                     }
 
@@ -360,7 +356,7 @@
 
                 // Wait for `aria-invalid` attributes to be updated
                 // before scrolling to the first invalid field
-                Vue.nextTick(() => {
+                this.$nextTick(() => {
                     if (this.enableErrorScrolling) {
                         this.scrollToError();
                     }

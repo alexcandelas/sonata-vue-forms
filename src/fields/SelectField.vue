@@ -1,24 +1,27 @@
 <template>
     <select
         :id="computedId"
-        :name="computedName"
+        :name="name"
         class="form-field"
         :class="{'form-field--invalid': hasErrors}"
         :aria-invalid="hasErrors ? 'true' : null"
         :aria-describedBy="describedBy || null"
         v-model="internalValue"
-        @change="$emit('change', internalValue)"
+        @change="$emit('update:modelValue', internalValue)"
     >
-        <option value="" disabled>
+        <option
+            value=""
+            :disabled="! nullable"
+        >
             <slot>{{ translate('defaultOption') }}</slot>
         </option>
 
         <slot name="before"></slot>
 
         <slot name="options">
-            <template v-for="option in orderedOptions">
+            <template v-for="option in computedOptions">
                 <optgroup
-                    v-if="option.optgroup"
+                    v-if="option.isGroup"
                     :key="option.value"
                     :label="option.value"
                 >
@@ -51,26 +54,30 @@
     export default {
         mixins: [FormField, Localization],
 
-        model: {
-            event: 'change'
-        },
-
         componentName: 'SelectField',
 
         props: {
             /**
-             * An object of values and descriptions to populate
-             * the options inside the select field.
+             * Define if a `null` option can be selected.
+             */
+            nullable: {
+                type: Boolean,
+                required: false,
+                default: false
+            },
+
+            /**
+             * An object of values and descriptions to populate the options.
              */
             options: {
                 type: [Array, Object],
-                required: true
+                required: false
             }
         },
 
         data() {
             return {
-                internalValue: this.value || '',
+                internalValue: this.modelValue || '',
                 localization: {
                     en: {
                         defaultOption: '- Select an option -'
@@ -79,20 +86,22 @@
                         defaultOption: '- Selecciona una opción -'
                     }
                 }
-            }
+            };
         },
 
         computed: {
             /**
-             * Prepare options tree to be used in template.
+             * Return a normalized options array.
+             *
+             * @return {Array}
              */
-            orderedOptions: function() {
+            computedOptions: function() {
                 let options = [];
 
                 if (Array.isArray(this.options)) {
                     this.options.forEach((item, key) => {
                         options.push(this.parseOption(item, key));
-                    })
+                    });
 
                     return options;
                 }
@@ -102,29 +111,12 @@
                 }
 
                 return options;
-            },
-
-            /**
-             * Check if form element has a `multiple` property.
-             */
-            multiple: function() {
-                return this.$attrs.multiple !== undefined;
             }
         },
 
         watch: {
-            value: function(value) {
+            modelValue: function(value) {
                 this.internalValue = value;
-            }
-        },
-
-        /**
-         * Prepare the `internalValue` as array when accepting
-         * multiple selections.
-         */
-        created() {
-            if (this.multiple && ! this.internalValue) {
-                this.internalValue = [];
             }
         },
 
@@ -145,26 +137,26 @@
 
                         item[firstKey].forEach((i, k) => {
                             group.push(this.parseOption(i, k));
-                        })
+                        });
 
                         return {
                             text: group,
                             value: firstKey,
-                            optgroup: true
+                            isGroup: true
                         };
                     }
 
                     return {
                         text: item[firstKey],
                         value: firstKey,
-                        optgroup: false
+                        isGroup: false
                     };
                 }
 
                 return {
                     text: item,
                     value: key,
-                    optgroup: false
+                    isGroup: false
                 };
             }
         }

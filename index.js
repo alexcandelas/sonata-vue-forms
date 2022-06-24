@@ -12,8 +12,8 @@ import TextArea from './src/fields/TextArea.vue';
 import TextField from './src/fields/TextField.vue';
 
 export default {
-    install (Vue, options = {}) {
-        Vue.component('base-form', Vue.extend({
+    install (app, options = {}) {
+        app.component('base-form', {
             extends: BaseForm,
             props: {
                 requestConfig: {
@@ -22,21 +22,21 @@ export default {
                     default: () => { return options; }
                 }
             }
-        }));
+        });
 
-        Vue.component('checkbox-field', CheckboxField);
-        Vue.component('date-field', DateField);
-        Vue.component('field-errors', FieldErrors);
-        Vue.component('file-field', FileField);
-        Vue.component('form-button', FormButton);
-        Vue.component('form-control', FormControl);
-        Vue.component('radio-field', RadioField);
-        Vue.component('select-field', SelectField);
-        Vue.component('switch-field', SwitchField);
-        Vue.component('text-area', TextArea);
-        Vue.component('text-field', TextField);
+        app.component('checkbox-field', CheckboxField);
+        app.component('date-field', DateField);
+        app.component('field-errors', FieldErrors);
+        app.component('file-field', FileField);
+        app.component('form-button', FormButton);
+        app.component('form-control', FormControl);
+        app.component('radio-field', RadioField);
+        app.component('select-field', SelectField);
+        app.component('switch-field', SwitchField);
+        app.component('text-area', TextArea);
+        app.component('text-field', TextField);
     }
-}
+};
 
 export {
     BaseForm,

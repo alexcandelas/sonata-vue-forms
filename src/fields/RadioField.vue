@@ -1,19 +1,18 @@
 <template>
     <label>
         <input
-            :name="computedName"
+            :name="name"
             class="radio"
             :class="[inputClass, {
                 'radio--invalid': hasErrors
             }]"
             type="radio"
             :aria-invalid="hasErrors ? 'true' : null"
-            :aria-describedby="describedBy"
-            :checked="isChecked"
-            :value="value"
+            :aria-describedby="describedBy || null"
             v-bind="$attrs"
-            ref="radio"
-            @change="$emit('change', value)"
+            :value="value"
+            :checked="modelValue === value"
+            @change="$emit('update:modelValue', $event.target.value)"
         >
         <slot></slot>
     </label>
@@ -27,37 +26,23 @@
 
         inheritsAttrs: false,
 
-        model: {
-            event: 'change',
-            prop: 'formValue'
-        },
-
         componentName: 'RadioField',
 
         props: {
-            /**
-             * Declaring `formValue` as a property is necessary
-             * for binding data inside the custom component.
-             */
-            formValue: {
-                required: false
-            },
-
             /**
              * CSS class for input element.
              */
             inputClass: {
                 type: String,
                 required: false
-            }
-        },
+            },
 
-        computed: {
             /**
-             * Check if the radio field should be selected.
+             * Native value for the input.
              */
-            isChecked: function() {
-                return this.formValue === this.value;
+            value: {
+                type: String,
+                required: true
             }
         }
     };

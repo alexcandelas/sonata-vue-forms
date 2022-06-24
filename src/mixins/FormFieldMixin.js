@@ -33,14 +33,14 @@ export default {
          */
         name: {
             type: String,
-            required: false
+            required: true
         },
 
         /**
-         * Declaring the value as a property is necessary for binding
-         * the data inside custom input components.
+         * Declaring modelValue as a property is necessary
+         * for binding data inside custom form components.
          */
-        value: {
+        modelValue: {
             required: false
         }
     },
@@ -50,20 +50,7 @@ export default {
          * Return a formatted ID for the field.
          */
         computedId() {
-            return this.id || kebabCase(this.computedName);
-        },
-
-        /**
-         * Set the `name` attribute for the field.
-         */
-        computedName() {
-            const name = this.name || this.$vnode.data.model.expression;
-
-            if (! name) {
-                throw new Error(`The ${this.$options.componentName} Vue component requires a "name" property.`);
-            }
-
-            return name.replace(/^fields\./, '');
+            return this.id || kebabCase(this.name);
         },
 
         /**
@@ -91,7 +78,7 @@ export default {
             }
 
             // Remove the "[]" ending from multiplevalue fields, like "images[]".
-            const fieldName = this.computedName.replace(/\[\]$/, '');
+            const fieldName = this.name.replace(/\[\]$/, '');
 
             return !! (
                 this.$parent.errors[fieldName] &&

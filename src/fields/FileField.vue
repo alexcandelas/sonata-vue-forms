@@ -2,7 +2,7 @@
     <div class="form-file">
         <input
             :id="computedId"
-            :name="computedName"
+            :name="name"
             class="form-file__upload"
             type="file"
             tabindex="0"
@@ -16,7 +16,8 @@
             @blur="hasFocus = false"
         >
 
-        <input class="form-file__text"
+        <input
+            class="form-file__text"
             :class="{
                 'form-field--invalid': hasErrors,
                 'form-field--focus': hasFocus
@@ -27,7 +28,8 @@
             tabindex="-1"
         >
 
-        <button class="form-file__btn btn btn--light"
+        <button
+            class="form-file__btn btn btn--light"
             type="button"
             @click="$refs.input.click()"
         >
@@ -46,10 +48,6 @@
         inheritsAttrs: false,
 
         componentName: 'FileField',
-
-        model: {
-            event: 'change'
-        },
 
         props: {
             /**
@@ -75,6 +73,7 @@
             return {
                 attachments: [],
                 hasFocus: false,
+                inputText: '',
                 localization: {
                     en: {
                         browse: 'Browse',
@@ -90,22 +89,33 @@
             };
         },
 
-        computed: {
+        watch: {
             /**
-             * The text to be shown in input when files are attached.
+             * Update the text displayed when attachments change.
              *
-             * @return string
+             * @param {Object} value
              */
-            inputText() {
-                switch(this.attachments.length) {
+            attachments: function(value) {
+                switch(value.length) {
                     case 0:
-                        return '';
+                        this.inputText = '';
+                        break;
                     case 1:
-                        return this.attachments[0].name;
+                        this.inputText = value[0].name;
+                        break;
                     default:
-                        return this.translate('filesSelected')
-                            .replace('{count}', this.attachments.length);
+                        this.inputText = this.translate('filesSelected')
+                            .replace('{count}', value.length);
                 }
+            }
+        },
+
+        /**
+         * Set an initial text.
+         */
+        created() {
+            if (typeof this.modelValue === 'string') {
+                this.inputText = this.modelValue;
             }
         },
 
@@ -125,7 +135,7 @@
                 this.attachments = attachments;
 
                 this.$emit(
-                    'change',
+                    'update:modelValue',
                     this.multiple ? this.attachments : this.attachments[0]
                 );
             }

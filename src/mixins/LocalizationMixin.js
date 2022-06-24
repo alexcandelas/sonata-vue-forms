@@ -6,7 +6,7 @@ export default {
         lang: {
             type: String,
             required: false
-        },
+        }
     },
 
     methods: {

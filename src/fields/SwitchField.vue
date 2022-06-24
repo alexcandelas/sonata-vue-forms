@@ -2,7 +2,7 @@
     <span class="form-switch">
         <input
             :id="computedId"
-            :name="computedName"
+            :name="name"
             class="form-switch__input"
             :class="[inputClass, {
                 'form-switch__input--invalid': hasErrors
@@ -10,9 +10,9 @@
             type="checkbox"
             :aria-invalid="hasErrors ? 'true' : null"
             :aria-describedby="describedBy || null"
-            :checked="isChecked"
-            :value="value"
             v-bind="$attrs"
+            :value="value"
+            :checked="isChecked"
             @change="onChange"
         >
 
@@ -25,13 +25,13 @@
                     v-if="showLabels"
                     name="on-label"
                 >
-                    <svg slot="on-label" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12.5L10 17 20 7"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12.5L10 17 20 7"/></svg>
                 </slot>
             </span>
 
             <span
                 class="form-switch__toggle-btn"
-                :class="animation"
+                :class="btnAnimation"
             ></span>
 
             <span class="form-switch__label form-switch__label--off">
@@ -52,22 +52,13 @@
 
         inheritsAttrs: false,
 
-        model: {
-            event: 'change',
-            prop: 'formValue'
-        },
-
         componentName: 'SwitchField',
 
         props: {
             /**
-             * Declaring `formValue` as a property is necessary
-             * for binding data inside the custom component.
+             * Define if the labels inside the component (icons by default)
+             * are visible.
              */
-            formValue: {
-                required: false
-            },
-
             showLabels: {
                 type: Boolean,
                 required: false,
@@ -80,36 +71,46 @@
             inputClass: {
                 type: String,
                 required: false
+            },
+
+            /**
+             * Native value for the input.
+             */
+            value: {
+                type: String,
+                required: false
             }
         },
 
         data() {
             return {
-                animation: ''
+                btnAnimation: ''
             };
         },
 
         computed: {
             isChecked: function() {
-                return this.value ? this.value : !! this.formValue;
+                return !! this.modelValue;
             }
         },
 
         methods: {
             /**
-             * Emit the new value.
+             * Emit the new value and trigger button animation.
              *
              * @param {Object} e
              */
             onChange(e) {
-                this.animation = '';
+                this.$emit('update:modelValue', e.target.checked);
 
-                this.$emit('change', e.target.checked);
+                this.$nextTick(() => {
+                    this.btnAnimation = '';
 
-                Vue.nextTick(() => {
-                    this.animation = this.isChecked ?
-                        'form-switch__toggle--on' :
-                        'form-switch__toggle--off';
+                    this.$nextTick(() => {
+                        this.btnAnimation = this.isChecked ?
+                            'form-switch__toggle--on' :
+                            'form-switch__toggle--off';
+                    });
                 });
             }
         }

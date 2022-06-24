@@ -1,7 +1,7 @@
 <template>
     <input
         :id="computedId"
-        :name="computedName"
+        :name="name"
         class="form-field"
         :class="{'form-field--invalid': hasErrors}"
         type="date"
@@ -44,61 +44,61 @@
         data() {
             return {
                 displayValue: '',
-                displayValueFormat: {},
+                displayFormat: {},
                 formSupportsDates: this.supportsDates
             };
         },
 
         computed: {
             /**
-             * Set the field placeholder.
+             * Set a placeholder for unsupported browsers.
              */
             computedPlaceholder: function() {
-                return this.$attrs.placeholder || this.displayValueFormat.format;
+                return this.$attrs.placeholder || this.displayFormat.format;
             }
         },
 
         watch: {
-            value: function(value) {
-                this.setInitialValue(value);
+            modelValue: function(value) {
+                this.updateDisplayValue(value);
             },
 
             displayValue: function(value) {
-                this.$emit('input', this.formatDate(value));
+                this.$emit('update:modelValue', this.formatValue(value));
             }
         },
 
         /**
          * Check for browser support of native `date` fields
-         * and set the initial value if given.
+         * and set the initial value.
          */
         created() {
             this.setBrowserSupport();
 
             if (! this.formSupportsDates) {
-                this.setDisplayValueFormat();
+                this.setDisplayFormat();
             }
 
-            this.setInitialValue(this.value);
+            this.updateDisplayValue(this.modelValue);
         },
 
         methods: {
             /**
-             * Normalize date for browsers that don't support
-             * native `date` fields.
+             * Return a normalized date for browsers
+             * that don't support native `date` fields.
              *
              * @param  {string} date
-             * @param  {boolean} forDisplay - Get format for displaying in text field.
+             * @param  {boolean} forDisplay - For displaying in text field.
              * @return {string}
              */
-            formatDate(date, forDisplay = false) {
+            formatValue(date, forDisplay = false) {
                 if (this.formSupportsDates || ! date) {
                     return date;
                 }
 
                 const entryRegex = forDisplay ?
                     /^(\d{4})-(\d{2})-(\d{2})$/ :
-                    this.displayValueFormat.regex;
+                    this.displayFormat.regex;
 
                 const matches = entryRegex.exec(date);
 
@@ -108,50 +108,34 @@
 
                 if (forDisplay) {
                     let newValue = [];
-                    newValue[this.displayValueFormat.order.y - 1] = matches[1];
-                    newValue[this.displayValueFormat.order.m - 1] = matches[2];
-                    newValue[this.displayValueFormat.order.d - 1] = matches[3];
+                    newValue[this.displayFormat.order.y - 1] = matches[1];
+                    newValue[this.displayFormat.order.m - 1] = matches[2];
+                    newValue[this.displayFormat.order.d - 1] = matches[3];
 
-                    return newValue.join(this.displayValueFormat.separator);
+                    return newValue.join(this.displayFormat.separator);
                 }
 
-                return matches[this.displayValueFormat.order.y] + '-' +
-                    matches[this.displayValueFormat.order.m].padStart(2, 0) + '-' +
-                    matches[this.displayValueFormat.order.d].padStart(2, 0);
+                return matches[this.displayFormat.order.y] + '-' +
+                    matches[this.displayFormat.order.m].padStart(2, 0) + '-' +
+                    matches[this.displayFormat.order.d].padStart(2, 0);
             },
 
             /**
-             * Set browser support of `date` type fields if not set already.
+             * Update the display value.
              */
-            setBrowserSupport() {
-                if (
-                    typeof this.formSupportsDates !== 'boolean' &&
-                    typeof this.$parent.supportsDates !== 'boolean'
-                ) {
-                    this.formSupportsDates = this.testBrowserSupport();
-                    this.$parent.supportsDates = this.formSupportsDates;
-                    this.$emit('date-support-check', this.formSupportsDates);
-                }
-            },
-
-            /**
-             * Set the initial value for the component.
-             */
-            setInitialValue(value) {
+            updateDisplayValue(value) {
                 if (! value) {
                     return;
                 }
 
-                this.displayValue = this.formSupportsDates ?
-                    value :
-                    this.formatDate(value, true);
+                this.displayValue = this.formatValue(value, true);
             },
 
             /**
              * Set display value format and regex for browsers
              * that don't support native `date` fields.
              */
-            setDisplayValueFormat() {
+            setDisplayFormat() {
                 const matches = this.validateFormat();
 
                 if (! matches) {
@@ -169,12 +153,49 @@
                     regex.push(letter === 'y' ? '(\\d{4})' : '(\\d{1,2})');
                 });
 
-                this.displayValueFormat = {
+                this.displayFormat = {
                     format: format.join(separator),
                     order,
                     separator,
                     regex: new RegExp('^' + regex.join('\\' + separator) + '$')
                 };
+            },
+
+            /**
+             * Validate that the "format" prop is a well formed string.
+             *
+             * @return {array}
+             */
+            validateFormat() {
+                const errorMessage = `The "format" property provided to ${this.$options.componentName} component is invalid.`;
+                const validDate = /^(d+|m+|y+(?=[/.-]))([/.-])(d+|m+|y+(?=[/.-]))([/.-])(d+|m+|y+(?=$))+$/i;
+                const matches = validDate.exec(this.format.toLowerCase());
+
+                if (! matches) {
+                    throw new Error(errorMessage);
+                }
+
+                const hasRequiredValues = [matches[1][0], matches[3][0], matches[5][0]].sort().join('') === 'dmy';
+
+                if (! hasRequiredValues) {
+                    throw new Error(errorMessage);
+                }
+
+                return matches;
+            },
+
+            /**
+             * Set browser support of `date` type fields if not set already.
+             */
+            setBrowserSupport() {
+                if (
+                    typeof this.formSupportsDates !== 'boolean' &&
+                    typeof this.$parent.supportsDates !== 'boolean'
+                ) {
+                    this.formSupportsDates = this.testBrowserSupport();
+                    this.$parent.supportsDates = this.formSupportsDates;
+                    this.$emit('date-support-check', this.formSupportsDates);
+                }
             },
 
             /**
@@ -189,30 +210,6 @@
                 input.setAttribute('value', 'invalid-date');
 
                 return input.value !== 'invalid-date';
-            },
-
-            /**
-             * Validate that the given format is a well formed string.
-             *
-             * @return {array}
-             */
-            validateFormat() {
-                const validDate = /^(d+|m+|y+(?=[\/.-]))([\/.-])(d+|m+|y+(?=[\/.-]))([\/.-])(d+|m+|y+(?=$))+$/i;
-                const matches = validDate.exec(this.format.toLowerCase());
-
-                if (! matches) {
-                    throw new Error(`The "format" property provided to ${this.$options.componentName} component is invalid.`);
-                }
-
-                const hasRequiredValues = [matches[1][0], matches[3][0], matches[5][0]].sort().join('') === 'dmy';
-
-                if (! hasRequiredValues) {
-                    throw new Error(`The "format" property provided to ${this.$options.componentName} component is invalid.`);
-
-                    return null;
-                }
-
-                return matches;
             }
         }
     };

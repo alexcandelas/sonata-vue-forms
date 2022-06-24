@@ -1,7 +1,7 @@
 <template>
     <label>
         <input
-            :name="computedName"
+            :name="name"
             class="checkbox"
             :class="[inputClass, {
                 'checkbox--invalid': hasErrors
@@ -9,10 +9,9 @@
             type="checkbox"
             :aria-invalid="hasErrors ? 'true' : null"
             :aria-describedby="describedBy || null"
-            :checked="isChecked"
-            :value="value"
             v-bind="$attrs"
-            ref="checkbox"
+            :value="value"
+            :checked="isChecked"
             @change="onChange"
         >
         <slot></slot>
@@ -27,26 +26,22 @@
 
         inheritsAttrs: false,
 
-        model: {
-            event: 'change',
-            prop: 'formValue'
-        },
-
         componentName: 'CheckboxField',
 
         props: {
             /**
-             * Declaring `formValue` as a property is necessary
-             * for binding data inside the custom component.
+             * CSS class for input element.
              */
-            formValue: {
+            inputClass: {
+                type: String,
                 required: false
             },
 
             /**
-             * CSS class for input element.
+             * Native value for the input when binding multiple checkbox
+             * to a single form field.
              */
-            inputClass: {
+            value: {
                 type: String,
                 required: false
             }
@@ -58,19 +53,21 @@
              * in the form's fields object.
              */
             isChecked: function() {
-                return this.value ?
-                    Array.isArray(this.formValue) && this.formValue.includes(this.value) :
-                    !! this.formValue;
+                if (this.value) {
+                    return Array.isArray(this.modelValue) && this.modelValue.includes(this.value);
+                }
+
+                return !! this.modelValue;
             }
         },
 
         /**
-         * Prepare the field that stores the data of this component in parent
-         * form as an array when accepting multiple values in checkbox.
+         * For forms that accept multiple checkbox binded to the same field,
+         * it’s necessary to setup an array as initial value.
          */
         created() {
-            if (this.value && ! Array.isArray(this.formValue)) {
-                this.$emit('change', []);
+            if (this.value && ! Array.isArray(this.modelValue)) {
+                this.$emit('update:modelValue', []);
             }
         },
 
@@ -82,7 +79,8 @@
                 let newValue;
 
                 if (this.value) {
-                    newValue = [...this.formValue];
+                    // Copy modelValue prop to a new array
+                    newValue = [...this.modelValue];
 
                     if (this.isChecked) {
                         newValue.splice(newValue.indexOf(this.value), 1);
@@ -92,10 +90,10 @@
                     }
                 }
                 else {
-                    newValue = ! this.isChecked
+                    newValue = ! this.isChecked;
                 }
 
-                this.$emit('change', newValue);
+                this.$emit('update:modelValue', newValue);
             }
         }
     };

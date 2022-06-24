@@ -3,28 +3,22 @@
         v-if="! isBooleanCheckbox && (type === 'checkbox' || type === 'radio')"
         class="form-control"
     >
-        <legend>{{ label }}</legend>
+        <legend :class="labelClass">{{ label }}</legend>
 
         <div
             v-for="option in computedOptions"
             :key="option.value"
         >
             <component
-                :is="component.name"
-                :display-errors="displayErrors"
-                :errors="controlErrors"
-                :name="computedName"
-                :form-value="value"
+                :is="component"
+                v-bind="{...$attrs, ...sharedProps}"
                 :value="option.value"
-                v-bind="$attrs"
-                :aria-describedby="describedBy || null"
-                v-on="inputListeners"
             >{{ option.label }}</component>
         </div>
 
         <field-errors
             v-if="displayErrors"
-            :name="computedName"
+            :name="name"
             :errors="controlErrors"
         ></field-errors>
 
@@ -33,7 +27,7 @@
             :id="computedId + '-help-text'"
             class="description"
         >
-            <li v-for="line in helpText">
+            <li v-for="(line, i) in helpText" :key="i">
                 {{ line }}
             </li>
         </ul>
@@ -47,39 +41,38 @@
     >
         <component
             v-if="isBooleanCheckbox"
-            :is="component.name"
-            :display-errors="displayErrors"
-            :errors="controlErrors"
-            :name="computedName"
-            :form-value="value"
-            v-bind="$attrs"
-            :aria-describedby="describedBy || null"
-            v-on="inputListeners"
+            input-class="mr-2"
+            :is="component"
+            v-bind="{...$attrs, ...sharedProps}"
         >{{ label }}</component>
 
         <template v-else>
-            <label :for="computedId">{{ label }}</label>
+            <label
+                :class="labelClass"
+                :for="computedId"
+            >{{ label }}</label>
 
             <br v-if="type === 'switch'">
 
             <component
-                :is="component.name"
-                :display-errors="displayErrors"
-                :errors="controlErrors"
-                :name="computedName"
-                :value="value"
+                :is="component"
+                v-bind="{...$attrs, ...sharedProps}"
                 :[typeProp]="type"
-                v-bind="$attrs"
-                :aria-describedby="describedBy || null"
-                v-on="inputListeners"
                 :options="options"
                 @date-support-check="setDateSupport"
-            ></component>
+            >
+                <template
+                    v-for="slotName in Object.keys($slots)"
+                    v-slot:[slotName]
+                >
+                    <slot :name="slotName"></slot>
+                </template>
+            </component>
         </template>
 
         <field-errors
             v-if="displayErrors"
-            :name="computedName"
+            :name="name"
             :errors="controlErrors"
         ></field-errors>
 
@@ -88,12 +81,10 @@
             :id="computedId + '-help-text'"
             class="description"
         >
-            <li v-for="line in helpText">
+            <li v-for="(line, i) in helpText" :key="i">
                 {{ line }}
             </li>
         </ul>
-
-        <slot></slot>
     </div>
 </template>
 
@@ -126,11 +117,20 @@
             },
 
             /**
+             * CSS class for label elements.
+             */
+            labelClass: {
+                type: [String, Object],
+                required: false
+            },
+
+            /**
              * A list of options for select, checkbox and radio components.
              */
             options: {
                 type: Array,
-                required: false
+                required: false,
+                default: () => []
             },
 
             /**
@@ -146,50 +146,26 @@
         data() {
             return {
                 availableComponents: {
-                    checkbox: {
-                        name: 'checkbox-field',
-                        event: 'change'
-                    },
-                    date: {
-                        name: 'date-field',
-                        event: 'input'
-                    },
-                    file: {
-                        name: 'file-field',
-                        event: 'change'
-                    },
-                    radio: {
-                        name: 'radio-field',
-                        event: 'change'
-                    },
-                    select: {
-                        name: 'select-field',
-                        event: 'change'
-                    },
-                    switch: {
-                        name: 'switch-field',
-                        event: 'change'
-                    },
-                    text: {
-                        name: 'text-field',
-                        event: 'input'
-                    },
-                    textarea: {
-                        name: 'text-area',
-                        event: 'input'
-                    }
+                    checkbox: 'checkbox-field',
+                    date: 'date-field',
+                    file: 'file-field',
+                    radio: 'radio-field',
+                    select: 'select-field',
+                    switch: 'switch-field',
+                    text: 'text-field',
+                    textarea: 'text-area'
                 }
             };
         },
 
         computed: {
             /**
-             * Settings for the rendered component.
+             * Return the component HTML tag.
              */
             component: function() {
                 return this.availableComponents[
                     this.componentExists ? this.type : 'text'
-                ]
+                ];
             },
 
             /**
@@ -219,10 +195,10 @@
             },
 
             /**
-             * List of validation errors for this field.
+             * List of validation errors for the field.
              */
             controlErrors: function() {
-                return this.errors || this.$parent.errors[this.computedName] || [];
+                return this.errors || this.$parent.errors[this.name] || [];
             },
 
             /**
@@ -239,36 +215,21 @@
             },
 
             /**
-             * The passed help text prepared as an array.
+             * Returns a normalized array of help text.
              */
             helpText: function() {
-                if (Array.isArray(this.help)) {
-                    return this.help;
+                if (! this.help) {
+                    return [];
                 }
 
-                return this.help ? [this.help] : [];
+                return Array.isArray(this.help) ? this.help : [this.help];
             },
 
             /**
-             * Add the appropiate listeners to the component.
-             */
-            inputListeners: function () {
-                return Object.assign({}, this.$listeners, {
-                    [this.component.event]: value => {
-                        this.$emit('input', value);
-
-                        if (this.component.event !== 'input') {
-                            this.$emit(this.component.event, value);
-                        }
-                    }
-                })
-            },
-
-            /**
-             * Check if the component is a boloean checkbox (without options).
+             * Check if the component is a boolean checkbox (without options).
              */
             isBooleanCheckbox: function() {
-                return this.type === 'checkbox' && ! this.options;
+                return this.type === 'checkbox' && ! this.options.length;
             },
 
             /**
@@ -276,6 +237,21 @@
              */
             language: function() {
                 return this.$parent.language || 'en';
+            },
+
+            /**
+             * Merge all props needed by all dynamic components.
+             *
+             * @return {Object}
+             */
+            sharedProps: function() {
+                return {
+                    'display-errors': this.displayErrors,
+                    'errors': this.controlErrors,
+                    'name': this.name,
+                    'model-value': this.modelValue,
+                    'aria-describedby': this.describedBy || null,
+                };
             },
 
             /**
