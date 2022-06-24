@@ -27,6 +27,6 @@
   },
   "peerDependencies": {
     "sonatacss": "~0.3.0",
-    "vue": "^2.6.0"
+    "vue": "^3.2.0"
   }
 }
