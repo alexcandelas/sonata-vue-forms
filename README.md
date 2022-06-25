@@ -1,11 +1,14 @@
 # Sonata Vue Forms
 
-Base form components for [Vue.js](https://vuejs.org) and [Sonata CSS](https://github.com/alexcandelas/sonata).
+Base form components for [Vue 3](https://vuejs.org) and [Sonata CSS](https://github.com/alexcandelas/sonata).
 
 ## Instalation
 ```sh
 npm install sonata-vue-forms --save
 ```
+
+For Vue 2 use `sonata-vue-forms@0.2.2`
+
 
 ## Usage
 ```js
@@ -56,7 +59,7 @@ After registering, all components will be available for use:
 ```
 
 ## Requirements
-- Vue >= 2.6
+- Vue >= 3.2
 - Sonata CSS >= 0.3.0
 
 ## Components
