@@ -128,7 +128,7 @@
              * A list of options for select, checkbox and radio components.
              */
             options: {
-                type: Array,
+                type: [Array, Object],
                 required: false,
                 default: () => []
             },
@@ -180,6 +180,10 @@
              * The prepared list of options for checkbox and radio components.
              */
             computedOptions: function() {
+                if (! Array.isArray(this.options)) {
+                    console.error(`FormControl.vue: The "options" prop for a "${this.type}" component must be an array.`);
+                }
+
                 let result = [];
 
                 this.options.forEach(option => {
