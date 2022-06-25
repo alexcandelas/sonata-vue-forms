@@ -90,6 +90,7 @@ export default {
             const fieldName = this.validationName || this.name.replace(/\[\]$/, '');
 
             return !! (
+                this.$parent.errors &&
                 this.$parent.errors[fieldName] &&
                 this.$parent.errors[fieldName].length
             );

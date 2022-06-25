@@ -43,9 +43,11 @@
              * @return {array}
              */
             fieldErrors() {
-                return this.errors !== null ?
-                    this.errors :
-                    this.$parent.errors[this.name];
+                if (this.errors !== null) {
+                    return this.errors;
+                }
+
+                return this.$parent.errors ? this.$parent.errors[this.name] : [];
             },
 
             /**
