@@ -2,6 +2,7 @@
     <fieldset
         v-if="! isBooleanCheckbox && (type === 'checkbox' || type === 'radio')"
         class="form-control"
+        :class="containerClass"
     >
         <legend :class="labelClass">{{ label }}</legend>
 
@@ -38,6 +39,7 @@
     <div
         v-else
         class="form-control"
+        :class="containerClass"
     >
         <component
             v-if="isBooleanCheckbox"
@@ -100,6 +102,14 @@
         componentName: 'FormControl',
 
         props: {
+            /**
+             * CSS class for the container element.
+             */
+            containerClass: {
+                type: [String, Object],
+                required: false
+            },
+
             /**
              * Help text for the component.
              */
