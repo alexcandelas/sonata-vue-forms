@@ -36,17 +36,20 @@ After registering, all components will be available for use:
     <div>
         <form-control
             v-model="fields.username"
+            name="username"
             label="Username"
         ></form-control>
 
         <form-control
             v-model="fields.password"
+            name="password"
             label="Password"
             type="password"
         ></form-control>
 
         <form-control
             v-model="fields.remember"
+            name="remember"
             label="Remember me"
             type="checkbox"
         ></form-control>
