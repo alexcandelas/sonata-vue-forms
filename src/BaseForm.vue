@@ -203,6 +203,7 @@
          */
         created() {
             this.setLanguage();
+            this.setInitialFields();
         },
 
         mounted() {
@@ -284,8 +285,7 @@
             },
 
             /**
-             * Merge internal data with all passed properties
-             * and initial field values.
+             * Merge internal data with passed properties.
              *
              * @param  {Object} internalData
              * @return {Object}
@@ -303,11 +303,16 @@
                     internalData[key] = this.data[key];
                 }
 
-                for (let key in this.initial) {
-                    internalData.fields[key] = this.initial[key];
-                }
-
                 return internalData;
+            },
+
+            /**
+             * Set any initial value for fields.
+             */
+            setInitialFields() {
+                for (let key in this.initial) {
+                    this.fields[key] = this.initial[key];
+                }
             },
 
             /**
