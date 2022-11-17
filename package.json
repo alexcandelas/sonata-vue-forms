@@ -1,6 +1,6 @@
 {
   "name": "sonata-vue-forms",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Base form components for Vue.js and Sonata CSS.",
   "main": "index.js",
   "repository": {
