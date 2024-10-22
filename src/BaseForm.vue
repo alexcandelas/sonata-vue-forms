@@ -7,7 +7,6 @@
             :isSubmitting="isSubmitting"
             :postSizeError="postSizeError"
             :submitError="submitError"
-            :supportsDates="supportsDates"
         ></slot>
     </form>
 </template>
@@ -149,7 +148,6 @@
                 isSubmitting: false,
                 language: '',
                 submitError: false,
-                supportsDates: null,
                 postSizeError: false,
                 prefersReducedMotion: window.matchMedia('(prefers-reduced-motion)').matches,
                 fields: {}

@@ -61,7 +61,6 @@
                 v-bind="{...$attrs, ...sharedProps}"
                 :[typeProp]="type"
                 :options="options"
-                @date-support-check="setDateSupport"
             >
                 <template
                     v-for="slotName in Object.keys($slots)"
@@ -277,18 +276,5 @@
                 return this.componentExists ? null : 'type';
             }
         },
-
-        methods: {
-            /**
-             * Set the `suportsDate` property in parent component
-             * when using a DateField.
-             *
-             * @param {boolean} value
-             */
-            setDateSupport(value) {
-                this.$parent.supportsDates = value;
-                this.$emit('date-support-check', value);
-            }
-        }
     };
 </script>
